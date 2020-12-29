@@ -15,5 +15,5 @@ yarn serve
 yarn build
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### Notes
+Add your own firebase configuration in a filename ``.firebase.config.js`` and export it for use in ``src/firebase.js``
