@@ -16,12 +16,12 @@ import {firebaseConfig} from '../.firebase.config.js'
   //collection ref
 
   const usersCollection = db.collection('users')
-  const gamesCollection = db.collection('games')
+  const workoutCollection = db.collection('workout')
 
   export {
       db,
       auth,
       storage,
       usersCollection,
-      gamesCollection
+      workoutCollection
   }

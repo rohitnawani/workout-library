@@ -1,7 +1,7 @@
 <template>
   <v-app>
-    <v-app-bar app color="white" flat>
-      <v-btn to="/" text> VueFirebase </v-btn>
+    <v-app-bar app color="pink darken-3" flat>
+      <v-btn to="/" text> Thiccumary </v-btn>
       <v-spacer> </v-spacer>
       <div v-if="!isAuth">
         <v-btn :to="{ name: 'Login' }" text> Login </v-btn>
@@ -22,6 +22,7 @@
 
 <script>
 import { mapState } from "vuex";
+import Dashboard from './views/Dashboard';
 export default {
   name: "App",
   data: () => ({
