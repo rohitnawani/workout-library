@@ -12,6 +12,7 @@ export default new Vuex.Store({
     userProfile: {},
     isAuth: false,
     workoutCollection: {},
+    allExistingTags: [],
   },
   plugins: [createPersistedState()],
   mutations: {
@@ -21,6 +22,9 @@ export default new Vuex.Store({
     },
     setworkoutCollection(state, val) {
       state.workoutCollection = val;
+    },
+    setAllExistingTags(state, val) {
+      state.allExistingTags = val;
     },
   },
   actions: {
@@ -66,29 +70,43 @@ export default new Vuex.Store({
       commit("setUserProfile", {});
       router.push("/");
     },
-
     async fetchWorkoutCollection({ commit }) {
       //fetch workout collection
-      const workoutCollection = await fb.workoutCollection.orderBy('createdWhen', "desc").get();
+      const workoutCollection = await fb.workoutCollection
+        .orderBy("createdWhen", "desc")
+        .get();
 
       const sanitizedWorkoutCollection = [];
 
       // TODO: hack to get around error of mutating the firebase data workoutCollection
-      workoutCollection.forEach( async (each) => {
-        let doc = each.data()
+      workoutCollection.forEach(async (each) => {
+        let doc = each.data();
 
         const userProfile = await fb.usersCollection.doc(doc.userId).get();
         doc.createdWho = userProfile.data().name;
-        doc.createdWhen = doc.createdWhen.toDate();
-        sanitizedWorkoutCollection.push(doc)
+        doc.createdWhen = doc.createdWhen.toDate().toLocaleString("en-GB", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
+        sanitizedWorkoutCollection.push(doc);
       });
-
       //set workout collection
       commit("setworkoutCollection", sanitizedWorkoutCollection);
+    },
+
+    async fetchTagsCollection({ commit }) {
+      // fetch tags collection
+      // TODO: this is cumbersome AF, figure out how to directly retreive data from firebase
+      const tagsCollection = await fb.tagsCollection.get();
+      const tags = [];
+      tagsCollection.forEach((each) => tags.push(each.data()));
+      commit("setAllExistingTags", tags);
     },
   },
   getters: {
     ifIsAuth: (state) => state.isAuth,
+    getTags: (state) => state.allExistingTags.map((tag) => tag.name),
   },
   modules: {},
 });

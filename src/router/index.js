@@ -4,7 +4,7 @@ import Register from "../views/auth/Register";
 import Login from "../views/auth/Login";
 import Dashboard from "../views/Dashboard";
 import store from "../store/index";
-import About from '../views/About'
+import About from "../views/About";
 
 Vue.use(VueRouter);
 
@@ -48,21 +48,21 @@ router.beforeEach((to, from, next) => {
   const ifIsAuth = store.getters.ifIsAuth;
 
   // redirect routes from main app
-  if (to.path === "/"){
-    if (ifIsAuth){
-      next("/dashboard")
-    } else{
-      next("/about")
+  if (to.path === "/") {
+    if (ifIsAuth) {
+      next("/dashboard");
+    } else {
+      next("/about");
     }
-
   }
-  
+
   if (requiresAuth && !ifIsAuth) {
     next("/login");
-  } else if (to.path === "/dashboard"){
-      // fetch all dashboard data before loadin dashboard component
-      store.dispatch("fetchWorkoutCollection");
-      next();
+  } else if (to.path === "/dashboard") {
+    // fetch all dashboard data before loadin dashboard component
+    store.dispatch("fetchWorkoutCollection");
+    store.dispatch("fetchTagsCollection");
+    next();
   } else {
     next();
   }

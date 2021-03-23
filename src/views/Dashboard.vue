@@ -61,12 +61,6 @@
             hide-details
           ></v-text-field>
         </v-card-title>
-        <!-- <v-data-table
-          :headers="headers"
-          :items="workoutCollection"
-          :search="search"
-          show-expand
-        ></v-data-table> -->
         <template>
           <v-data-table
             :headers="headers"
@@ -76,6 +70,7 @@
             item-key="title"
             show-expand
             class="elevation-1"
+            :items-per-page="itemsPerPage"
           >
             <template v-slot:top>
               <v-toolbar flat>
@@ -88,11 +83,22 @@
                 ></v-switch>
               </v-toolbar>
             </template>
-            <template v-slot:expanded-item="{ headers, item }" >
+            <template v-slot:item.tags="{ item }">
+              <v-chip
+                v-for="tag in item.tags"
+                v-bind:key="tag"
+                :color="getTagsColor(tag)"
+                text-color="black"
+              >
+                {{ tag }}
+              </v-chip>
+            </template>
+
+            <template v-slot:expanded-item="{ headers, item }">
               <td :colspan="headers.length">
                 <template v-for="line in item.description.split('\n')"
-                      >{{ line }}<br
-                    /></template>
+                  >{{ line }}<br
+                /></template>
               </td>
             </template>
           </v-data-table>
@@ -104,7 +110,7 @@
       v-else
       :items="workoutCollection"
       item-key="name"
-      :items-per-page="10"
+      :items-per-page="itemsPerPage"
     >
       <template v-slot:default="{ items }">
         <v-row>
@@ -179,6 +185,7 @@ export default {
   data() {
     return {
       // if list View === false -> card view
+      itemsPerPage: 15,
       listView: true,
       search: "",
       expanded: [],
@@ -192,6 +199,7 @@ export default {
         },
         { text: "Uploaded by user", value: "createdWho" },
         { text: "Date", value: "createdWhen" },
+        { text: "Tags", filterable: true, value: "tags" },
       ],
     };
   },
@@ -199,27 +207,26 @@ export default {
     ...mapState(["userProfile", "workoutCollection"]),
   },
   watch: {
-    expandAll(newValue){
-      this.expanded = newValue ? this.$store.state.workoutCollection : []
+    expandAll(newValue) {
+      this.expanded = newValue ? this.$store.state.workoutCollection : [];
     },
-    expanded(newValue){
-      if (newValue.length === 0){
-        this.expandAll = false
+    expanded(newValue) {
+      if (newValue.length === 0) {
+        this.expandAll = false;
       }
-    }
+    },
   },
   methods: {
     refreshData() {
-      //     this.$storeworkoutCollection.forEach( (each) => {
-      //     let doc = each.data()
-
-      //     console.log(doc.uploadedWhen)
-      //   });
-
       this.$store.dispatch("fetchWorkoutCollection");
+      this.$store.dispatch("fetchTagsCollection");
     },
     toggleView() {
       this.listView = !this.listView;
+    },
+    getTagsColor(tag) {
+      return this.$store.state.allExistingTags.find((o) => o.name === tag)
+        .color;
     },
   },
 };

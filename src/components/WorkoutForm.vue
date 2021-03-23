@@ -25,12 +25,31 @@
             >
             </v-textarea>
 
-            <v-text-field
-              v-model="reference"
-              label="Reference Link"
-              outlined
-            >
+            <v-text-field v-model="reference" label="Reference Link" outlined>
             </v-text-field>
+
+            <template>
+              <v-combobox
+                v-model="tags"
+                :items="allTags"
+                chips
+                clearable
+                label="Insert tags"
+                multiple
+              >
+                <template v-slot:selection="{ attrs, item, select, selected }">
+                  <v-chip
+                    v-bind="attrs"
+                    :input-value="selected"
+                    close
+                    @click="select"
+                    @click:close="removeFromtags(item)"
+                  >
+                    <strong>{{ item }}</strong>
+                  </v-chip>
+                </template>
+              </v-combobox>
+            </template>
 
             <!-- <v-file-input
               accept="image/*"
@@ -63,9 +82,10 @@
 </template>
 
 <script>
-import { workoutCollection, auth, storage } from "../firebase";
-import firebase from 'firebase/app'
-
+import { tagsCollection, workoutCollection, auth } from "../firebase";
+import { mapState } from "vuex";
+import firebase from "firebase/app";
+import * as randomColor from "randomcolor";
 
 export default {
   name: "WorkoutForm",
@@ -79,6 +99,8 @@ export default {
       reference: "",
       file: null,
       fieldRules: [(v) => !!v || "this field is required"],
+      tags: [],
+      allTags: this.$store.getters.getTags,
     };
   },
   methods: {
@@ -100,10 +122,12 @@ export default {
           description: this.description,
           // image: fileRef,
           reference: this.reference,
+          tags: this.tags,
           createdWhen: firebase.firestore.Timestamp.now(),
         };
 
-        const doc = await workoutCollection.add(data);
+        this.checkIfNewTags();
+        await workoutCollection.add(data);
 
         await this.resetForm();
         this.isLoading = false;
@@ -111,6 +135,37 @@ export default {
       } catch (e) {
         console.log(e);
       }
+    },
+    checkIfNewTags() {
+      // check if there are new tags,
+      // if so, set new color + add to TagsCollection
+      this.tags.forEach(async (tag) => {
+        if (!this.allTags.includes(tag)) {
+          const color = randomColor({ luminosity: "light" });
+          let obj = { name: tag, color };
+          await tagsCollection.add(obj);
+        }
+      });
+    },
+    async removeFromtags(item) {
+      // let allExistingTags = [];
+
+      // let foo = await workoutCollection.get();
+      // foo.forEach((each) => {
+      //   let doc = each.data();
+      //   allExistingTags.push(...doc.tags);
+      // });
+
+      // allExistingTags = [...new Set(allExistingTags)];
+      // console.log(allExistingTags);
+
+      // allExistingTags.forEach(async (each) => {
+      //   const color = randomColor({ luminosity: "light" });
+      //   let obj = { name: each, color };
+      //   await tagsCollection.add(obj);
+      // });
+      this.tags.splice(this.tags.indexOf(item), 1);
+      this.tags = [...this.tags];
     },
   },
 };
