@@ -17,8 +17,10 @@ export default new Vuex.Store({
   plugins: [createPersistedState()],
   mutations: {
     setUserProfile(state, val) {
-      state.isAuth = !state.isAuth;
       state.userProfile = val;
+    },
+    setIsAuth(state) {
+      state.isAuth = !state.isAuth;
     },
     setworkoutCollection(state, val) {
       state.workoutCollection = val;
@@ -61,6 +63,8 @@ export default new Vuex.Store({
 
       //set user profile
       commit("setUserProfile", userProfile.data());
+      //reset IsAuth
+      commit("setIsAuth");
 
       //change route or redirect
       router.push("/dashboard");
@@ -68,6 +72,7 @@ export default new Vuex.Store({
     async logout({ commit }) {
       await fb.auth.signOut();
       commit("setUserProfile", {});
+      commit("setIsAuth");
       router.push("/");
     },
     async fetchWorkoutCollection({ commit }) {

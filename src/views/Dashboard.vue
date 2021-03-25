@@ -2,11 +2,12 @@
   <v-container fluid>
     <v-row>
       <v-col>
-        <h1>Hi, {{ userProfile.name }}</h1>
+        <h1>哈囉 {{ userProfile.name }}</h1>
+        <avataaar class="avatar-class"></avataaar>
       </v-col>
     </v-row>
 
-    <v-row>
+    <v-row class="buttons-row">
       <v-col>
         <WorkoutForm />
       </v-col>
@@ -96,9 +97,11 @@
 
             <template v-slot:expanded-item="{ headers, item }">
               <td :colspan="headers.length">
-                <template v-for="line in item.description.split('\n')"
-                  >{{ line }}<br
-                /></template>
+                <div class="workoutDescription">
+                  <template v-for="line in item.description.split('\n')"
+                    >{{ line }}<br
+                  /></template>
+                </div>
               </td>
             </template>
           </v-data-table>
@@ -178,9 +181,12 @@
 <script>
 import { mapState } from "vuex";
 import WorkoutForm from "@/components/WorkoutForm";
+import Avataaar from "../components/avatar/Avataaar";
+
 export default {
   components: {
     WorkoutForm,
+    Avataaar,
   },
   data() {
     return {
@@ -231,3 +237,19 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.workoutDescription {
+  margin-top: 1%;
+  margin-bottom: 1%;
+  margin-left: 1%;
+  color: pink;
+}
+.buttons-row {
+  margin-bottom: 1%;
+}
+.avatar-class {
+  float: left;
+  width: 10%;
+}
+</style>

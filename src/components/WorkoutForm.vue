@@ -83,7 +83,6 @@
 
 <script>
 import { tagsCollection, workoutCollection, auth } from "../firebase";
-import { mapState } from "vuex";
 import firebase from "firebase/app";
 import * as randomColor from "randomcolor";
 
@@ -148,22 +147,6 @@ export default {
       });
     },
     async removeFromtags(item) {
-      // let allExistingTags = [];
-
-      // let foo = await workoutCollection.get();
-      // foo.forEach((each) => {
-      //   let doc = each.data();
-      //   allExistingTags.push(...doc.tags);
-      // });
-
-      // allExistingTags = [...new Set(allExistingTags)];
-      // console.log(allExistingTags);
-
-      // allExistingTags.forEach(async (each) => {
-      //   const color = randomColor({ luminosity: "light" });
-      //   let obj = { name: each, color };
-      //   await tagsCollection.add(obj);
-      // });
       this.tags.splice(this.tags.indexOf(item), 1);
       this.tags = [...this.tags];
     },
