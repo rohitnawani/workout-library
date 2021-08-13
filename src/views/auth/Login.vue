@@ -5,7 +5,6 @@
         <v-card-title> Login </v-card-title>
         <v-card-text>
           <v-form ref="form" v-model="valid" lazy-validation>
-
             <v-text-field
               v-model="email"
               :rules="emailRules"
@@ -31,46 +30,45 @@
               Login
             </v-btn>
           </v-form>
-          <p class="pt-2"> Create an account? <router-link :to="{ name: 'Register' }"> Register</router-link></p>
+          <p class="pt-2">
+            Create an account?
+            <router-link :to="{ name: 'Register' }"> Register</router-link>
+          </p>
         </v-card-text>
       </v-card>
     </v-col>
   </v-row>
 </template>
 
-
-
 <script>
 export default {
-    data () {
-        return {
-            show: false,
-            valid: false,
-            email: '',
-            password: '',
-            emailRules: [
-                v => !!v || 'Email is required',
-                v => /.+@.+/.test(v) || 'Email must be valid'
-            ],
+  data() {
+    return {
+      show: false,
+      valid: false,
+      email: "",
+      password: "",
+      emailRules: [
+        (v) => !!v || "Email is required",
+        (v) => /.+@.+/.test(v) || "Email must be valid",
+      ],
 
-            passwordRules: [
-                v => !!v || 'Password is required',
-                v => v.length >= 8 || 'Password must be 8 characters or more'
-            ]
-
-        }
+      passwordRules: [
+        (v) => !!v || "Password is required",
+        (v) => v.length >= 8 || "Password must be 8 characters or more",
+      ],
+    };
+  },
+  methods: {
+    login() {
+      const valid = this.$refs.form.validate();
+      if (valid) {
+        this.$store.dispatch("login", {
+          email: this.email,
+          password: this.password,
+        });
+      }
     },
-    methods: {
-        login(){
-            const valid = this.$refs.form.validate()
-            if (valid){
-                this.$store.dispatch('login',{
-                    email: this.email,
-                    password: this.password
-                })
-            }
-        }
-    }
-    
-}
+  },
+};
 </script>

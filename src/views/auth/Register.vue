@@ -39,51 +39,48 @@
               Register
             </v-btn>
           </v-form>
-          <p class="pt-2"> Already have an account? <router-link :to="{ name: 'Login' }"> Login Now</router-link></p>
+          <p class="pt-2">
+            Already have an account?
+            <router-link :to="{ name: 'Login' }"> Login Now</router-link>
+          </p>
         </v-card-text>
       </v-card>
     </v-col>
   </v-row>
 </template>
 
-
-
 <script>
 export default {
-    data () {
-        return {
-            show: false,
-            valid: false,
-            name: '',
-            email: '',
-            password: '',
-            nameRules : [
-                v => !!v || 'Name is required'
-            ],
-            emailRules: [
-                v => !!v || 'Email is required',
-                v => /.+@.+/.test(v) || 'Email must be valid'
-            ],
+  data() {
+    return {
+      show: false,
+      valid: false,
+      name: "",
+      email: "",
+      password: "",
+      nameRules: [(v) => !!v || "Name is required"],
+      emailRules: [
+        (v) => !!v || "Email is required",
+        (v) => /.+@.+/.test(v) || "Email must be valid",
+      ],
 
-            passwordRules: [
-                v => !!v || 'Password is required',
-                v => v.length >= 8 || 'Password must be 8 characters or more'
-            ]
-
-        }
+      passwordRules: [
+        (v) => !!v || "Password is required",
+        (v) => v.length >= 8 || "Password must be 8 characters or more",
+      ],
+    };
+  },
+  methods: {
+    register() {
+      const valid = this.$refs.form.validate();
+      if (valid) {
+        this.$store.dispatch("register", {
+          name: this.name,
+          email: this.email,
+          password: this.password,
+        });
+      }
     },
-    methods: {
-        register(){
-            const valid = this.$refs.form.validate()
-            if (valid){
-                this.$store.dispatch('register',{
-                    name: this.name,
-                    email: this.email,
-                    password: this.password
-                })
-            }
-        }
-    }
-    
-}
+  },
+};
 </script>

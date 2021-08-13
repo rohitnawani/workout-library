@@ -11,8 +11,10 @@ export default new Vuex.Store({
   state: {
     userProfile: {},
     isAuth: false,
-    workoutCollection: {},
-    allExistingTags: [],
+    workoutCollection: [],
+    exerciseCollection: [],
+    tagsCollection: [],
+    usersMap: {}, //key - ID, value - name
   },
   plugins: [createPersistedState()],
   mutations: {
@@ -22,11 +24,17 @@ export default new Vuex.Store({
     setIsAuth(state) {
       state.isAuth = !state.isAuth;
     },
-    setworkoutCollection(state, val) {
+    setWorkoutCollection(state, val) {
       state.workoutCollection = val;
     },
-    setAllExistingTags(state, val) {
-      state.allExistingTags = val;
+    setExerciseCollection(state, val) {
+      state.exerciseCollection = val;
+    },
+    setTagsCollection(state, val) {
+      state.tagsCollection = val;
+    },
+    setUsersMap(state, val) {
+      state.usersMap = val;
     },
   },
   actions: {
@@ -67,7 +75,7 @@ export default new Vuex.Store({
       commit("setIsAuth");
 
       //change route or redirect
-      router.push("/dashboard");
+      router.push("/workout-dashboard");
     },
     async logout({ commit }) {
       await fb.auth.signOut();
@@ -81,10 +89,44 @@ export default new Vuex.Store({
         .orderBy("createdWhen", "desc")
         .get();
 
-      const sanitizedWorkoutCollection = [];
+      let sanitizedWorkoutCollection = [];
 
       // TODO: hack to get around error of mutating the firebase data workoutCollection
       workoutCollection.forEach(async (each) => {
+        let doc = each.data();
+        doc.createdWhenDateFormat = doc.createdWhen.toDate();
+
+        doc.createdWhen = doc.createdWhenDateFormat.toLocaleString("en-GB", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
+
+        // const userProfile = await fb.usersCollection.doc(doc.userId).get();
+        // doc.createdWho = userProfile.data().name;
+        doc.createdWho = this.state.usersMap[doc.userId];
+        sanitizedWorkoutCollection.push(doc);
+      });
+
+      // HACK: fb orderBy is not working for some reason so sorting manually as a hack
+      const sortedSanitizedWorkoutCollection = sanitizedWorkoutCollection.sort(
+        (a, b) =>
+          new Date(b.createdWhenDateFormat) - new Date(a.createdWhenDateFormat)
+      );
+
+      //set workout collection
+      commit("setWorkoutCollection", sortedSanitizedWorkoutCollection);
+    },
+
+    async fetchExerciseCollection({ commit }) {
+      // fetch exercise collection
+      const exerciseCollection = await fb.exerciseCollection
+        .orderBy("createdWhen", "desc")
+        .get();
+
+      const sanitizedExerciseCollection = [];
+
+      exerciseCollection.forEach(async (each) => {
         let doc = each.data();
 
         const userProfile = await fb.usersCollection.doc(doc.userId).get();
@@ -94,10 +136,10 @@ export default new Vuex.Store({
           month: "short",
           day: "numeric",
         });
-        sanitizedWorkoutCollection.push(doc);
+        sanitizedExerciseCollection.push(doc);
       });
-      //set workout collection
-      commit("setworkoutCollection", sanitizedWorkoutCollection);
+      // set exercise collection
+      commit("setExerciseCollection", sanitizedExerciseCollection);
     },
 
     async fetchTagsCollection({ commit }) {
@@ -106,12 +148,22 @@ export default new Vuex.Store({
       const tagsCollection = await fb.tagsCollection.get();
       const tags = [];
       tagsCollection.forEach((each) => tags.push(each.data()));
-      commit("setAllExistingTags", tags);
+      commit("setTagsCollection", tags);
+    },
+    async fetchUsersMap({ commit }) {
+      // fetch users collection
+      // TODO: this is cumbersome AF, figure out how to directly retreive data from firebase
+      const usersCollection = await fb.usersCollection.get();
+      const users = {};
+      usersCollection.forEach((each) => {
+        users[each.id] = each.data().name;
+      });
+      commit("setUsersMap", users);
     },
   },
   getters: {
     ifIsAuth: (state) => state.isAuth,
-    getTags: (state) => state.allExistingTags.map((tag) => tag.name),
+    getTags: (state) => state.tagsCollection.map((tag) => tag.name),
   },
   modules: {},
 });

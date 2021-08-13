@@ -16,6 +16,7 @@ const storage = firebase.storage();
 
 const usersCollection = db.collection("users");
 const workoutCollection = db.collection("workout");
+const exerciseCollection = db.collection("exercise");
 const tagsCollection = db.collection("tags");
 
 export {
@@ -24,5 +25,6 @@ export {
   storage,
   usersCollection,
   workoutCollection,
+  exerciseCollection,
   tagsCollection,
 };

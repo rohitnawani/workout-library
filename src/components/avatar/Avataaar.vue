@@ -1,15 +1,18 @@
 <template>
-  <v-img
-    :lazy-src="avatarURL"
-    :src="avatarURL"
-    @click="generateNewAvatar()"
-  ></v-img>
+  <div>
+    <h1>Hi {{ userProfile.name }}</h1>
+    <v-img
+      :lazy-src="avatarURL"
+      :src="avatarURL"
+      @click="generateNewAvatar()"
+    ></v-img>
+  </div>
 </template>
 
 <script>
 import AvataaarMetadata from "./AvataaarMetadata";
 import { mapState } from "vuex";
-import { usersCollection } from "../../firebase";
+import { usersCollection, auth } from "../../firebase";
 
 export default {
   props: {
@@ -35,6 +38,12 @@ export default {
     return {
       queryString: "",
     };
+  },
+  async created() {
+    // read firebase data from avatar query string
+    if (this.userProfile.avatar) {
+      this.queryString = this.userProfile.avatar;
+    }
   },
   computed: {
     ...mapState(["userProfile"]),
@@ -63,10 +72,15 @@ export default {
       this.queryString = queryString;
 
       this.addAvatarToFB(queryString);
+      this.$store.commit("setUserProfile", {
+        name: this.userProfile.name,
+        avatar: queryString,
+      });
     },
-    addAvatarToFB(queryString) {
-      console.log(usersCollection);
-      console.log(this.userProfile);
+    async addAvatarToFB(queryString) {
+      await usersCollection
+        .doc(auth.currentUser.uid)
+        .update({ avatar: queryString });
     },
   },
 };

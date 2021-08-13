@@ -2,7 +2,6 @@
   <v-container fluid>
     <v-row>
       <v-col>
-        <h1>哈囉 {{ userProfile.name }}</h1>
         <avataaar class="avatar-class"></avataaar>
       </v-col>
     </v-row>
@@ -101,6 +100,7 @@
                   <template v-for="line in item.description.split('\n')"
                     >{{ line }}<br
                   /></template>
+                  <a v-if="item.reference" :href="item.reference">Reference</a>
                 </div>
               </td>
             </template>
@@ -209,8 +209,11 @@ export default {
       ],
     };
   },
+  created() {
+    this.refreshData();
+  },
   computed: {
-    ...mapState(["userProfile", "workoutCollection"]),
+    ...mapState(["userProfile", "workoutCollection", "usersMap"]),
   },
   watch: {
     expandAll(newValue) {
@@ -224,6 +227,7 @@ export default {
   },
   methods: {
     refreshData() {
+      this.$store.dispatch("fetchUsersMap");
       this.$store.dispatch("fetchWorkoutCollection");
       this.$store.dispatch("fetchTagsCollection");
     },
@@ -231,8 +235,7 @@ export default {
       this.listView = !this.listView;
     },
     getTagsColor(tag) {
-      return this.$store.state.allExistingTags.find((o) => o.name === tag)
-        .color;
+      return this.$store.state.tagsCollection.find((o) => o.name === tag).color;
     },
   },
 };
